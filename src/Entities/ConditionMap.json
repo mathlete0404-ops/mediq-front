@@ -1,0 +1,42 @@
+{
+    "name": "ConditionMap",
+    "type": "object",
+    "properties": {
+      "user_terms": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "canonical_condition": {
+        "type": "string"
+      },
+      "icd10": {
+        "type": "string"
+      },
+      "broad_specialty": {
+        "type": "string",
+        "description": "포괄적인 상위 진료과 (예: 내과, 외과)"
+      },
+      "sub_specialty": {
+        "type": "string",
+        "description": "세부 전문 진료과 (예: 소화기내과, 정형외과)"
+      },
+      "explanation": {
+        "type": "string",
+        "description": "해당 진료과를 추천하는 이유, 예상 검사/치료에 대한 환자 친화적 설명"
+      },
+      "red_flags": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "required": [
+      "canonical_condition",
+      "broad_specialty",
+      "sub_specialty",
+      "explanation"
+    ]
+  }

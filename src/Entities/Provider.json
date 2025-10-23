@@ -1,0 +1,52 @@
+{
+    "name": "Provider",
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string"
+      },
+      "type": {
+        "type": "string",
+        "enum": [
+          "university",
+          "local"
+        ]
+      },
+      "specialty": {
+        "type": "string"
+      },
+      "address": {
+        "type": "string"
+      },
+      "lat": {
+        "type": "number"
+      },
+      "lng": {
+        "type": "number"
+      },
+      "phone": {
+        "type": "string"
+      },
+      "hours_text": {
+        "type": "string"
+      },
+      "description": {
+        "type": "string"
+      },
+      "renown_score": {
+        "type": "number"
+      },
+      "tags": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "required": [
+      "name",
+      "type",
+      "lat",
+      "lng"
+    ]
+  }

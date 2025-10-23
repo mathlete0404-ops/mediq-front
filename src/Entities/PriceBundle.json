@@ -1,0 +1,36 @@
+{
+    "name": "PriceBundle",
+    "type": "object",
+    "properties": {
+      "condition_key": {
+        "type": "string"
+      },
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "min": {
+              "type": "number"
+            },
+            "median": {
+              "type": "number"
+            },
+            "max": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "currency": {
+        "type": "string",
+        "default": "KRW"
+      }
+    },
+    "required": [
+      "condition_key"
+    ]
+  }

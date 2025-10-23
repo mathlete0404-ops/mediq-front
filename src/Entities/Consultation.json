@@ -1,0 +1,25 @@
+{
+    "name": "Consultation",
+    "type": "object",
+    "properties": {
+      "symptoms": {
+        "type": "string",
+        "description": "사용자가 입력한 증상"
+      },
+      "recommended_specialty": {
+        "type": "string",
+        "description": "추천된 진료과"
+      },
+      "is_emergency": {
+        "type": "boolean",
+        "description": "응급 상황 여부"
+      },
+      "specialty_reason": {
+        "type": "string",
+        "description": "진료과 추천 이유"
+      }
+    },
+    "required": [
+      "symptoms"
+    ]
+  }

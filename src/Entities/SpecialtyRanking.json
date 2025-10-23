@@ -1,0 +1,36 @@
+{
+    "name": "SpecialtyRanking",
+    "type": "object",
+    "properties": {
+      "specialty_key": {
+        "type": "string",
+        "description": "랭킹 조회를 위한 전문과 키 (예: gastro)"
+      },
+      "hospital_id": {
+        "type": "string",
+        "description": "Provider(병원) ID"
+      },
+      "rank": {
+        "type": "number",
+        "description": "해당 전문과 내 순위"
+      },
+      "score": {
+        "type": "number",
+        "description": "산출된 점수"
+      },
+      "source": {
+        "type": "string",
+        "description": "랭킹 산출 근거"
+      },
+      "updated_at": {
+        "type": "string",
+        "format": "date",
+        "description": "데이터 업데이트 일자"
+      }
+    },
+    "required": [
+      "specialty_key",
+      "hospital_id",
+      "rank"
+    ]
+  }
