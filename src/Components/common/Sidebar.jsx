@@ -1,7 +1,5 @@
-
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
+import Link from 'next/link';
 import { Stethoscope, Home, Sparkles, MessageSquarePlus, Settings, Sun, Moon, Languages, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Button } from '@/Components/ui/button';
 import { Switch } from '@/Components/ui/switch';
@@ -45,7 +43,7 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
 
       <aside className={`fixed top-0 left-0 h-full bg-gray-900 text-white z-50 flex flex-col transition-all duration-300 ease-in-out ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 ${isSidebarCollapsed ? 'w-20' : 'w-72'} ${theme === 'dark' ? 'bg-[#0E1422]' : ''}`}>
         <div className="p-6 border-b border-gray-700">
-          <Link to={createPageUrl('Home')} onClick={handleHomeClick} className={`flex items-center gap-3 group ${isSidebarCollapsed ? 'justify-center' : ''}`} title="MedIQ — Find Smarter, Heal Faster.">
+          <Link href="/" onClick={handleHomeClick} className={`flex items-center gap-3 group ${isSidebarCollapsed ? 'justify-center' : ''}`} title="MedIQ — Find Smarter, Heal Faster.">
             <div className="transition-transform group-hover:scale-110">
               <Logo />
             </div>

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
@@ -29,7 +28,9 @@ const redIcon = new L.Icon({
   shadowSize: [41, 41]
 });
 
-export default function MapModal({ isOpen, onClose, hospitals, userLocation }) {
+export default function MapModal(props) {
+  if (typeof window === 'undefined') return null;
+  const { isOpen, onClose, hospitals, userLocation } = props;
   const mapRef = useRef();
   const { theme } = useAppContext(); // Added useAppContext hook
 

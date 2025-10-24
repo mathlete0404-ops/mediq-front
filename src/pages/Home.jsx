@@ -1,24 +1,24 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { InvokeLLM } from '@/integrations/Core';
-import { Consultation } from '@/entities/Consultation';
-import DisclaimerBanner from '../Components/common/DisclaimerBanner.js';
-import ChatInterface from '../Components/chat/ChatInterface';
-import ConversationView from '../Components/chat/ConversationView';
-import SpecialtyRecommendation from '../Components/specialty/SpecialtyRecommendation.js';
-import HospitalList from '../Components/hospitals/HospitalList.js';
-import MapModal from '../Components/map/MapModal.js/index.js';
-import { Shield, Zap, Map, Heart, LifeBuoy, Mail, MessageSquarePlus } from 'lucide-react';
+import Consultation from '@/entities/Consultation';
+import DisclaimerBanner from '@/Components/common/DisclaimerBanner.jsx';
+// ChatInterface는 아래 6번에서 추가한 컴포넌트
+import ChatInterface from '@/Components/chat/ChatInterface.jsx';
+import ConversationView from '@/Components/common/chat/ConversationView';
+import SpecialtyRecommendation from '@/Components/specialty/SpecialtyRecommendation.jsx';
+import HospitalList from '@/Components/hospitals/HospitalList.jsx';
+import dynamic from 'next/dynamic';
+const MapModal = dynamic(() => import('@/Components/map/MapModal.jsx'), { ssr: false });
 import { Card, CardContent } from '@/Components/ui/card';
 import { Button } from '@/Components/ui/button';
-import { Loader2 } from 'lucide-react';
-import { Provider } from '@/entities/Provider';
-import { PriceBundle } from '@/entities/PriceBundle';
-import { ConditionMap } from '@/entities/ConditionMap';
-import { SpecialtyRanking } from '@/entities/SpecialtyRanking';
+import Provider from '@/Entities/Provider';
+import PriceBundle from '@/Entities/PriceBundle';
+import ConditionMap from '@/Entities/ConditionMap';
+import SpecialtyRanking from '@/Entities/SpecialtyRanking';
 import { useAppContext } from '@/Components/contexts/AppContext';
-import HeroPattern from '../Components/visual/HeroPattern.js';
-import AboutSection from "../Components/about/AboutSection.jsx/index.js"; // Added import
+import HeroPattern from '@/Components/visual/HeroPattern.jsx';
+import AboutSection from '@/Components/about/AboutSection.jsx'; // Added import
+import { MessageSquarePlus, Shield, Zap, Map as MapIcon, Heart, LifeBuoy, Loader2 } from 'lucide-react';
 
 const haversineDistance = (coords1, coords2) => {
   if (!coords1 || !coords2) return null;
@@ -479,7 +479,7 @@ export default function Home() {
               </CardContent>
             </Card>
             <Card className="flex flex-col items-center p-6 text-center bg-white/80 border border-gray-200 rounded-2xl shadow-[0_10px_20px_rgba(0,0,0,0.08)] hover:scale-[1.02] transition-transform">
-              <Map className="w-12 h-12 text-primary mb-4" />
+              <MapIcon className="w-12 h-12 text-primary mb-4" />
               <CardContent className="p-0">
                 <h3 className="text-xl font-semibold mb-2">{t('feature_navigation_title')}</h3>
                 <p className="text-muted-foreground">{t('feature_navigation_description')}</p>

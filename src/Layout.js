@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Menu } from "lucide-react";
 import { Button } from "@/Components/ui/button";
@@ -9,7 +8,7 @@ import Sidebar from "./Components/common/Sidebar";
 import { Routes, Route } from "react-router-dom";
 
 /* ✅ NEW: 페이지 import (파일명에 맞춰 경로 수정) */
-import Home from "./Pages/Home.jsx";
+import Home from "./pages/Home.jsx";
 
 const DarkThemeStyles = () => (
   <style jsx global>{`
@@ -137,7 +136,7 @@ const DarkThemeStyles = () => (
   `}</style>
 );
 
-function AppLayout() {
+function AppLayout({ children }) {
   const { theme, viewMode, isSidebarCollapsed } = useAppContext();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -170,22 +169,15 @@ function AppLayout() {
     <div className={`min-h-screen bg-background text-foreground`}>
       <DarkThemeStyles />
       <Sidebar mobileOpen={mobileMenuOpen} setMobileOpen={setMobileMenuOpen} />
-      
       <div className={`transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'md:pl-20' : 'md:pl-72'}`}>
         <header className="sticky top-0 z-30 flex items-center justify-end h-16 px-4 border-b bg-background/80 backdrop-blur-sm md:hidden">
           <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(true)}>
             <Menu className="w-6 h-6" />
           </Button>
         </header>
-        
-        {/* ✅ NEW: 실제 페이지 라우팅 */}
         <main className="min-h-[calc(100vh-4rem)]">
-          <Routes>
-            <Route path="/" element={<Home />} />
-          </Routes>
+          {children}
         </main>
-
-
         {viewMode === 'landing' && (
           <footer className="bg-gray-800 text-white">
             <div className="max-w-[1200px] mx-auto px-6 py-8 text-center space-y-1">
