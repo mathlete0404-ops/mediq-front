@@ -17,7 +17,7 @@ const Step = ({ icon: Icon, title, desc }) => (
         <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#007AFF] to-[#00C2B8] text-white flex items-center justify-center mb-3">
           <Icon className="w-5 h-5" />
         </div>
-        <h4 className="font-semibold text-lg text-foreground mb-1 break-keep">{title}</h4>
+        <h4 className="font-semibold text-lg text-black mb-1 break-keep">{title}</h4>
         <p className="text-sm text-muted-foreground leading-relaxed break-keep">{desc}</p>
       </CardContent>
     </Card>
@@ -68,7 +68,7 @@ export default function AboutSection() {
 
           {/* 3-step process container (arrows removed, single row, word-break safe) */}
           <motion.div variants={fadeUp} className="rounded-2xl p-6 md:p-8 bg-gradient-to-r from-[#F9FAFF] to-[#E0F7FA] border border-gray-200 shadow-[0_10px_20px_rgba(0,0,0,0.08)] mb-10">
-            <h3 className="text-xl font-semibold text-foreground mb-5 break-keep">
+            <h3 className="text-xl font-semibold text-black mb-5 break-keep">
               {t("about.process_title")}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">

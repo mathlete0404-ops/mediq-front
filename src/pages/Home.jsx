@@ -441,7 +441,7 @@ export default function Home() {
                 <span className="ml-0.5 border-r-2 border-[#00C2B8] animate-caret" />
                 {t('hero_title_2').split('{dynamic}')[1] || ''}
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
+              <p className="text-lg md:text-xl white max-w-2xl mx-auto mb-10">
                 {t('hero_subtitle')}
               </p>
               <Button
@@ -462,33 +462,33 @@ export default function Home() {
             <span className="inline-block h-1 w-12 bg-[#00C2B8] rounded-full" />
           </div>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">{t('features_title')}</h2>
-          <p className="text-muted-foreground mb-10">{t('features_tagline')}</p>
+          <p className="white mb-10">{t('features_tagline')}</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             <Card className="flex flex-col items-center p-6 text-center bg-white/80 border border-gray-200 rounded-2xl shadow-[0_10px_20px_rgba(0,0,0,0.08)] hover:scale-[1.02] transition-transform">
               <Shield className="w-12 h-12 text-primary mb-4" />
               <CardContent className="p-0">
-                <h3 className="text-xl font-semibold mb-2">{t('feature_security_title')}</h3>
+                <h3 className="text-xl text-black font-semibold mb-2">{t('feature_security_title')}</h3>
                 <p className="text-muted-foreground">{t('feature_security_description')}</p>
               </CardContent>
             </Card>
             <Card className="flex flex-col items-center p-6 text-center bg-white/80 border border-gray-200 rounded-2xl shadow-[0_10px_20px_rgba(0,0,0,0.08)] hover:scale-[1.02] transition-transform">
               <Zap className="w-12 h-12 text-primary mb-4" />
               <CardContent className="p-0">
-                <h3 className="text-xl font-semibold mb-2">{t('feature_speed_title')}</h3>
+                <h3 className="text-xl text-black font-semibold mb-2">{t('feature_speed_title')}</h3>
                 <p className="text-muted-foreground">{t('feature_speed_description')}</p>
               </CardContent>
             </Card>
             <Card className="flex flex-col items-center p-6 text-center bg-white/80 border border-gray-200 rounded-2xl shadow-[0_10px_20px_rgba(0,0,0,0.08)] hover:scale-[1.02] transition-transform">
               <MapIcon className="w-12 h-12 text-primary mb-4" />
               <CardContent className="p-0">
-                <h3 className="text-xl font-semibold mb-2">{t('feature_navigation_title')}</h3>
+                <h3 className="text-xl text-black font-semibold mb-2">{t('feature_navigation_title')}</h3>
                 <p className="text-muted-foreground">{t('feature_navigation_description')}</p>
               </CardContent>
             </Card>
             <Card className="flex flex-col items-center p-6 text-center bg-white/80 border border-gray-200 rounded-2xl shadow-[0_10px_20px_rgba(0,0,0,0.08)] hover:scale-[1.02] transition-transform">
               <Heart className="w-12 h-12 text-primary mb-4" />
               <CardContent className="p-0">
-                <h3 className="text-xl font-semibold mb-2">{t('feature_care_title')}</h3>
+                <h3 className="text-xl text-black font-semibold mb-2">{t('feature_care_title')}</h3>
                 <p className="text-muted-foreground">{t('feature_care_description')}</p>
               </CardContent>
             </Card>
@@ -499,7 +499,7 @@ export default function Home() {
       {/* New About section */}
       <AboutSection />
 
-      <section id="safety" className="py-20 bg-secondary/50">
+      <section id="safety" className="py-20 bg-background">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12">{t('nav_safety')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -510,7 +510,7 @@ export default function Home() {
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold mb-2">{t('disclaimer_title')}</h3>
-                  <p className="text-muted-foreground">{t('disclaimer_content')}</p>
+                  <p className="text-foreground">{t('disclaimer_content')}</p>
                 </div>
               </CardContent>
             </Card>
@@ -521,7 +521,7 @@ export default function Home() {
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold mb-2">{t('feature_security_title')}</h3>
-                  <p className="text-muted-foreground">{t('feature_security_description')}</p>
+                  <p className="text-foreground">{t('feature_security_description')}</p>
                 </div>
               </CardContent>
             </Card>

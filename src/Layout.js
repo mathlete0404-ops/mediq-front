@@ -18,7 +18,7 @@ const DarkThemeStyles = () => (
       --surface:    #121A2A;   /* card/sidebar */
       --surface-2:  #0B111C;   /* big sections (hero next) */
       --foreground: #E8EDF5;   /* main text */
-      --muted-foreground: #A5B2C7; /* description */
+      --muted-foreground: #000000; /* description */
       --border: #1F2A3D;
 
       --primary: #39A1FF;
@@ -27,6 +27,8 @@ const DarkThemeStyles = () => (
       --secondary-foreground: #041313;
       --accent: #FFB700;
       --ring: #00C2FF;
+      --white: #FFFFFF;
+      --black: #000000;
 
       --hero-grad-dark: linear-gradient(180deg,#0E1422 0%, #0B111C 60%);
     }

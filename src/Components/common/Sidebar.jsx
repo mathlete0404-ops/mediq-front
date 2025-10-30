@@ -45,7 +45,7 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
         <div className="p-6 border-b border-gray-700">
           <Link href="/" onClick={handleHomeClick} className={`flex items-center gap-3 group ${isSidebarCollapsed ? 'justify-center' : ''}`} title="MedIQ — Find Smarter, Heal Faster.">
             <div className="transition-transform group-hover:scale-110">
-              <Logo />
+              <img src="/logo.png" alt='logo' className="h-14 w-14"/>
             </div>
             <span className={`text-xl font-bold whitespace-nowrap transition-opacity ${isSidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>MedIQ</span>
           </Link>

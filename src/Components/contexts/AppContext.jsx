@@ -1,6 +1,6 @@
 
 import React, { createContext, useState, useContext, useMemo, useEffect } from 'react';
-import { translations } from '@/Components/lib/translations';
+import { translations } from '@/components/lib/translations';
 
 const AppContext = createContext();
 
