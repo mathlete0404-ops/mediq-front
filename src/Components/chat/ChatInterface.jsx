@@ -5,12 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { Loader2, Zap } from 'lucide-react';
-import { useAppContext } from '@/components/contexts/AppContext';
+import { useAppContext } from '@/Components/contexts/AppContext';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import SymptomTemplate from './SymptomTemplate';
 
 export default function ChatInterface({ onSubmit, isLoading }) {
-  const { language } = useAppContext();
+  const {t, language } = useAppContext();
   const [symptoms, setSymptoms] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [template, setTemplate] = useState({

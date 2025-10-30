@@ -3,10 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { MessageSquare, Clock, Flame, Crosshair, PlusCircle } from 'lucide-react';
-import { useAppContext } from '@/components/contexts/AppContext';
+import { useAppContext } from '@/Components/contexts/AppContext';
 
 export default function SymptomTemplate({ value, onChange }) {
-  const { language } = useAppContext();
+  const {t, language } = useAppContext();
 
   const quickSymptoms = language === 'en'
     ? ["Headache", "Stomachache", "Indigestion", "Cough", "Knee pain", "Back pain", "Skin rash"]
