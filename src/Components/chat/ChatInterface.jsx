@@ -1,9 +1,9 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Card } from '@/components/ui/card';
+import { Button } from '@/Components/ui/button';
+import { Textarea } from '@/Components/ui/textarea';
+import { Card } from '@/Components/ui/card';
 import { Loader2, Zap } from 'lucide-react';
 import { useAppContext } from '@/Components/contexts/AppContext';
 import { ChevronDown, ChevronUp } from 'lucide-react';

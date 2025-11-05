@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { InvokeLLM } from '@/integrations/Core';
-import Consultation from '@/entities/Consultation';
+import Consultation from '@/Entities/Consultation';
 import DisclaimerBanner from '@/Components/common/DisclaimerBanner.jsx';
 // ChatInterface는 아래 6번에서 추가한 컴포넌트
 import ChatInterface from '@/Components/chat/ChatInterface.jsx';
