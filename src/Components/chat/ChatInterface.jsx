@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import axios from 'axios';
 import { motion } from 'framer-motion';
 import { Button } from '@/Components/ui/button';
 import { Textarea } from '@/Components/ui/textarea';
@@ -8,9 +9,12 @@ import { Loader2, Zap } from 'lucide-react';
 import { useAppContext } from '@/Components/contexts/AppContext';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import SymptomTemplate from './SymptomTemplate';
+import AnalysisResult from './AnalysisResult';
 
 export default function ChatInterface({ onSubmit, isLoading }) {
   const {t, language } = useAppContext();
+  const [analysisResult, setAnalysisResult] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [symptoms, setSymptoms] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [template, setTemplate] = useState({
@@ -46,16 +50,44 @@ export default function ChatInterface({ onSubmit, isLoading }) {
     return `⚡ ${parts.join(' · ')}`;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const hasTemplateData = template.symptom || template.onset || template.severity || template.body_part || (template.associated_symptoms?.length || 0) > 0 || template.associated_notes;
 
+    // Build payload
+    let payload;
+    let displaySymptom;
     if (showAdvanced && hasTemplateData) {
-      onSubmit({
-        ...template,
-        free_text: symptoms?.trim() || '' // Include free-text symptoms as well
-      });
+      payload = { ...template, free_text: symptoms?.trim() || '' };
+      displaySymptom = buildSummary() || JSON.stringify(payload);
     } else if (symptoms.trim()) {
-      onSubmit(symptoms.trim());
+      payload = { symptom: symptoms.trim() };
+      displaySymptom = symptoms.trim();
+    } else {
+      return; // nothing to send
+    }
+
+    setLoading(true);
+    setAnalysisResult(null);
+
+    try {
+      const res = await axios.post('http://localhost:8000/analyze', payload);
+      const data = res.data || {};
+      
+      setAnalysisResult({
+        department: data.department || data.recommended_department || data.department_name || '내과',
+        description: data.description || data.explanation || data.details || '분석 결과를 가져올 수 없습니다.',
+        symptom: displaySymptom
+      });
+    } catch (err) {
+      const msg = err?.response?.data?.error || err.message || 'Request failed';
+      setAnalysisResult({
+        department: '오류',
+        description: `오류가 발생했습니다: ${msg}`,
+        symptom: displaySymptom
+      });
+    } finally {
+      setLoading(false);
+      setSymptoms('');
     }
   };
 
@@ -74,6 +106,17 @@ export default function ChatInterface({ onSubmit, isLoading }) {
       transition={{ delay: 0.2 }}
       className="w-full"
     >
+      {/* Analysis Result */}
+      {analysisResult && (
+        <div className="mb-6">
+          <AnalysisResult 
+            department={analysisResult.department}
+            description={analysisResult.description}
+            symptom={analysisResult.symptom}
+          />
+        </div>
+      )}
+
       <Card className="p-6 shadow-xl border-0 bg-card backdrop-blur-sm rounded-2xl">
         <Textarea
           value={symptoms}
@@ -81,7 +124,7 @@ export default function ChatInterface({ onSubmit, isLoading }) {
           onKeyPress={handleKeyPress}
           placeholder={t('chat_placeholder')}
           className="min-h-[120px] text-base resize-none border-border focus:ring-2 focus:ring-primary rounded-lg"
-          disabled={isLoading}
+          disabled={loading}
         />
         
         <div className="mt-3 flex justify-end">
@@ -114,10 +157,10 @@ export default function ChatInterface({ onSubmit, isLoading }) {
           </p>
           <Button
             onClick={handleSubmit}
-            disabled={(!symptoms.trim() && !(template.symptom || template.onset || template.severity || template.body_part || (template.associated_symptoms?.length || 0) > 0 || template.associated_notes)) || isLoading}
+            disabled={(!symptoms.trim() && !(template.symptom || template.onset || template.severity || template.body_part || (template.associated_symptoms?.length || 0) > 0 || template.associated_notes)) || loading}
             className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 px-8 py-6 text-lg rounded-xl text-white"
           >
-            {isLoading ? (
+            {loading ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                 {t('chat_analyzing_button')}
@@ -138,7 +181,7 @@ export default function ChatInterface({ onSubmit, isLoading }) {
             key={symptom}
             onClick={() => setSymptoms(symptom)}
             className="px-4 py-2 bg-card/70 hover:bg-card rounded-lg text-sm text-foreground transition-colors backdrop-blur-sm border"
-            disabled={isLoading}
+            disabled={loading}
           >
             {symptom}
           </button>
