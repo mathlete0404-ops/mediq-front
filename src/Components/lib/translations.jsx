@@ -118,8 +118,12 @@ export const translations = {
       feature_care_description: "증상에 맞는 전문과, 병원 평판, 예상 진료비 정보를 한눈에 제공합니다.",
       // New for sidebar
       sidebar: {
-          menu_title: "메뉴",
-          settings_title: "시스템 설정",
+          home: "홈",
+          introduction: "소개",
+          new_chat: "새 채팅",
+          close_sidebar: "사이드바 접기",
+          theme: "테마",
+          language: "언어",
       },
       specialty_explanations: {
         "정형외과": "관절, 뼈, 근육, 인대 등의 통증과 손상을 진단하고 수술 또는 비수술적 방법으로 치료하는 전문 분야입니다.",
@@ -272,9 +276,13 @@ export const translations = {
       feature_care_description: "See specialty, hospital reputation, and estimated costs at a glance.",
       // New for sidebar
       sidebar: {
-          menu_title: "Menu",
-          settings_title: "System Settings",
-      },
+        home: "Home",
+        introduction: "Introduction",
+        new_chat: "New Chat",
+        close_sidebar: "Close Sidebar",
+        theme: "Theme",
+        language: "Language",
+    },
       specialty_explanations: {
         "Orthopedics": "Diagnoses and treats pain and injuries in joints, bones, muscles, and ligaments through surgical or non-surgical methods.",
         "Gastroenterology": "Diagnoses and treats diseases of the digestive system, including the esophagus, stomach, intestines, and liver, using endoscopy and medication.",

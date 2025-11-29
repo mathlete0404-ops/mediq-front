@@ -88,17 +88,17 @@ export default function AboutSection() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               <SampleCard
                 title={t("about.sample1_title")}
-                img="https://images.unsplash.com/photo-1583912267550-c9a3d0e17058?q=80&w=1200&auto=format&fit=crop"
+                img="/Example1.png"
                 alt="Symptom input UI"
               />
               <SampleCard
                 title={t("about.sample2_title")}
-                img="https://images.unsplash.com/photo-1512069772995-ec65ed45afd6?q=80&w=1200&auto=format&fit=crop"
+                img="/Example2.png"
                 alt="AI analysis result UI"
               />
               <SampleCard
                 title={t("about.sample3_title")}
-                img="https://images.unsplash.com/photo-1586773860418-d37222d8fce3?q=80&w=1200&auto=format&fit=crop"
+                img="/Example3.png"
                 alt="Hospital recommendation cards"
               />
             </div>

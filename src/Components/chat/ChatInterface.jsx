@@ -1,11 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { Button } from '@/Components/ui/button';
 import { Textarea } from '@/Components/ui/textarea';
 import { Card } from '@/Components/ui/card';
-import { Loader2, Zap } from 'lucide-react';
+import { Loader2, Zap, Camera, X, Image as ImageIcon } from 'lucide-react';
 import { useAppContext } from '@/Components/contexts/AppContext';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import SymptomTemplate from './SymptomTemplate';
@@ -16,6 +16,9 @@ export default function ChatInterface({ onSubmit, isLoading }) {
   const [analysisResult, setAnalysisResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [symptoms, setSymptoms] = useState('');
+  const [uploadedImages, setUploadedImages] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [template, setTemplate] = useState({
     symptom: '',
@@ -25,6 +28,34 @@ export default function ChatInterface({ onSubmit, isLoading }) {
     associated_symptoms: [],
     associated_notes: ''
   });
+
+  const [file, setFile] = useState(null);
+
+  const onFileChange = (e) => {
+    const f = e.target.files && e.target.files[0];
+    setFile(f ?? null);
+  };
+  
+  const [previewUrl, setPreviewUrl] = useState(null);
+  
+  React.useEffect(() => {
+    if (!file) {
+      setPreviewUrl(null);
+      return;
+    }
+  
+    // create preview for images
+    if (file.type.startsWith("image/")) {
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+  
+      return () => URL.revokeObjectURL(url);
+    }
+  
+    setPreviewUrl(null);
+    return;
+  }, [file]);
+  
 
   const buildSummary = () => {
     const desc = template.symptom || symptoms; // Prioritize structured symptom, then free text
@@ -76,19 +107,31 @@ export default function ChatInterface({ onSubmit, isLoading }) {
       setAnalysisResult({
         department: data.department || data.recommended_department || data.department_name || '내과',
         description: data.description || data.explanation || data.details || '분석 결과를 가져올 수 없습니다.',
-        symptom: displaySymptom
+        symptom: displaySymptom,
+        icd10code: data.icd_10_code,
+        estimatedDisease: data.estimated_disease
       });
     } catch (err) {
       const msg = err?.response?.data?.error || err.message || 'Request failed';
       setAnalysisResult({
         department: '오류',
         description: `오류가 발생했습니다: ${msg}`,
-        symptom: displaySymptom
+        symptom: displaySymptom,
+        icd10code: "아이시디 코드가 없습니다",
+        estimatedDisease: "추청 질환이 없습니다"
       });
     } finally {
       setLoading(false);
       setSymptoms('');
     }
+  };
+
+  const handleFileSelect = async (e) => {
+    
+  };
+
+  const removeImage = (index) => {
+    setUploadedImages(uploadedImages.filter((_, i) => i !== index));
   };
 
   const handleKeyPress = (e) => {
@@ -109,15 +152,23 @@ export default function ChatInterface({ onSubmit, isLoading }) {
       {/* Analysis Result */}
       {analysisResult && (
         <div className="mb-6">
+                {/* Symptom Summary */}
+      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+        <p className="text-sm text-gray-600 mb-1">
+          {language === 'en' ? 'Your Symptoms' : '나의 증상'}
+        </p>
+        <p className="text-base font-medium text-gray-900">{analysisResult.symptom}</p>
+      </div>
           <AnalysisResult 
             department={analysisResult.department}
             description={analysisResult.description}
-            symptom={analysisResult.symptom}
+            icd10code={analysisResult.icd10code}
+            estimatedDisease={analysisResult.estimatedDisease}
           />
         </div>
       )}
 
-      <Card className="p-6 shadow-xl border-0 bg-card backdrop-blur-sm rounded-2xl">
+      {!analysisResult && (<Card className="p-6 shadow-xl border-0 bg-card backdrop-blur-sm rounded-2xl">
         <Textarea
           value={symptoms}
           onChange={(e) => setSymptoms(e.target.value)}
@@ -127,8 +178,41 @@ export default function ChatInterface({ onSubmit, isLoading }) {
           disabled={loading}
         />
         
-        <div className="mt-3 flex justify-end">
-          <Button
+
+        <div className="mt-3 flex justify-between items-center">
+          <div>{previewUrl&&(<img src={previewUrl} alt={file.name} className="h-20 w-20-object-cover"/>)}
+          </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={onFileChange}
+              className="hidden"
+              disabled={isLoading || isUploading}
+            />
+            <div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isLoading || isUploading}
+              className="text-sm"
+            >
+              {isUploading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  {language === 'en' ? 'Uploading...' : '업로드 중...'}
+                </>
+              ) : (
+                <>
+                  <Camera className="w-4 h-4 mr-2" />
+                  {language === 'en' ? 'Add Photo' : '사진 추가'}
+                </>
+              )}
+            </Button>
+            </div>
+            <Button
             variant="ghost"
             size="sm"
             onClick={() => setShowAdvanced(!showAdvanced)}
@@ -137,7 +221,8 @@ export default function ChatInterface({ onSubmit, isLoading }) {
             {showAdvanced ? (language === 'en' ? 'Less details' : '간단히 입력') : (language === 'en' ? 'More details' : '더 자세히 입력하기')}
             {showAdvanced ? <ChevronUp className="w-4 h-4 ml-2" /> : <ChevronDown className="w-4 h-4 ml-2" />}
           </Button>
-        </div>
+          </div>
+
 
         {showAdvanced && (
           <div className="mt-4">
@@ -152,7 +237,7 @@ export default function ChatInterface({ onSubmit, isLoading }) {
         )}
         
         <div className="mt-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-muted-foreground text-center sm:text-left">
+          <p className="text-sm white text-center sm:text-left">
             {t('chat_prompt_detail')}
           </p>
           <Button
@@ -173,7 +258,7 @@ export default function ChatInterface({ onSubmit, isLoading }) {
             )}
           </Button>
         </div>
-      </Card>
+      </Card>)}
 
       <div className="mt-6 flex flex-wrap justify-center gap-3">
         {[t('symptom_suggestion_headache'), t('symptom_suggestion_stomachache'), t('symptom_suggestion_fever'), t('symptom_suggestion_cough')].map((symptom) => (

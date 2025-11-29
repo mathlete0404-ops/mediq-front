@@ -1,9 +1,10 @@
 import React from 'react';
 import { Card } from '@/Components/ui/card';
-import { Brain, ArrowRight } from 'lucide-react';
+import { Brain, ArrowRight, Stethoscope, Lightbulb, HelpCircle } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { useAppContext } from '@/Components/contexts/AppContext';
 
-export default function AnalysisResult({ department, description, symptom }) {
+export default function AnalysisResult({ department, description, estimatedDisease, icd10code}) {
   const { language } = useAppContext();
 
   // Department description mapping (can be moved to a separate file later)
@@ -43,59 +44,61 @@ export default function AnalysisResult({ department, description, symptom }) {
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto p-6 shadow-lg border rounded-2xl bg-white">
+    <Card className="w-full max-w-3xl mx-auto p-6 shadow-lg border rounded-2xl bg-white">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="p-3 bg-blue-100 rounded-full">
-          <Brain className="w-6 h-6 text-blue-600" />
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
+          <Lightbulb className="w-6 h-6 text-white" />
         </div>
         <h2 className="text-xl font-bold text-gray-900">
-          {language === 'en' ? 'AI Analysis Result' : 'AI 분석 결과'}
+          {language === 'en' ? '🧠 AI Analysis Result' : '🧠 AI 분석 결과'}
         </h2>
       </div>
 
-      {/* Symptom Summary */}
-      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-        <p className="text-sm text-gray-600 mb-1">
-          {language === 'en' ? 'Your Symptoms' : '나의 증상'}
-        </p>
-        <p className="text-base font-medium text-gray-900">{symptom}</p>
-      </div>
+        {/* Estimated Disease */}
+        <div className="grid md:grid-cols-2 gap-4">
+            <div className="bg-blue-50/50 p-4 rounded-lg">
+              <p className="text-sm text-gray-600 mb-1">{language === 'en' ? 'Estimated Disease' : '추정 질환'}</p>
+              <h4 className="text-lg font-bold text-gray-900">
+                {estimatedDisease || t('no_info')}
+                {icd10code && <Badge variant="outline" className="ml-2 font-mono">{icd10code}</Badge>}
+              </h4>
+            </div>
+            {/* Recommended Department */}
+            <div className="bg-cyan-50/50 p-4 rounded-lg">
+              <p className="text-sm text-gray-600 mb-1">{deptInfo.name}</p>
+              <h4 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <Stethoscope className="w-5 h-5 text-cyan-700" />
+                {deptInfo.name}
+              </h4>
+            </div>
+          </div>
 
-      {/* Recommended Department */}
-      <div className="mb-6">
-        <div className="flex items-center gap-2 mb-3">
-          <p className="text-sm text-gray-600">
-            {language === 'en' ? 'Recommended Department' : '추천 진료과'}
-          </p>
-        </div>
-        <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
-          <ArrowRight className="w-5 h-5 text-blue-600" />
-          <span className="text-xl font-bold text-blue-700">{deptInfo.name}</span>
-        </div>
-      </div>
 
       {/* Recommendation Reason */}
-      <div className="mb-6">
-        <h3 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-          <span className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-xs">ℹ️</span>
-          {language === 'en' ? 'Recommendation Reason:' : '추천 이유:'}
-        </h3>
-        <p className="text-sm text-gray-700 leading-relaxed pl-8">
-          {description}
-        </p>
-      </div>
+      <div className="bg-gray-50/70 p-5 rounded-xl border">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
+            <HelpCircle className="w-5 h-5 text-gray-600"/>
+              </div>
+                <h4 className="font-semibold text-gray-800">{language === 'en' ? 'Recommendation Reason:' : '추천 이유:'}</h4>
+          </div>
+        <p className="text-gray-600 leading-relaxed text-sm">{description}</p>
+          </div>
 
-      {/* Department Information */}
-      <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
-        <h3 className="text-sm font-semibold text-blue-900 mb-2 flex items-center gap-2">
-          <span className="w-6 h-6 bg-blue-200 rounded-full flex items-center justify-center text-xs">🏥</span>
-          {language === 'en' ? `What is ${deptInfo.name}?` : `${deptInfo.name}는 어떤 곳인가요?`}
-        </h3>
-        <p className="text-sm text-blue-800 leading-relaxed pl-8">
-          {deptInfo.description}
-        </p>
-      </div>
+
+{/* Department Information */}
+      {
+            <div className="bg-blue-50/50 p-5 rounded-xl border border-blue-100">
+              <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Stethoscope className="w-5 h-5 text-blue-600"/>
+                  </div>
+                  <h4 className="font-semibold text-blue-800">{deptInfo.name}는 어떤 곳인가요?</h4>
+              </div>
+              <p className="text-blue-700 leading-relaxed text-sm">{deptInfo.description}</p>
+            </div>
+          }
 
       {/* Footer Note */}
       <div className="mt-6 pt-4 border-t border-gray-200">
