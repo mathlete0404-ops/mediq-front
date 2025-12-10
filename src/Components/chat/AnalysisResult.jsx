@@ -1,12 +1,15 @@
 import React from 'react';
 import { Card } from '@/Components/ui/card';
-import { Brain, ArrowRight, Stethoscope, Lightbulb, HelpCircle } from 'lucide-react';
+import { Brain, Feedback, Check, X, ArrowRight, Stethoscope, Lightbulb, HelpCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useAppContext } from '@/Components/contexts/AppContext';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
-export default function AnalysisResult({ department, description, estimatedDisease, icd10code}) {
+export default function AnalysisResult({ department, description, estimatedDisease, icd10code, isEmergency, goHospitalRecommend, onBack}) {
   const { language } = useAppContext();
-
+  const { t } = useAppContext();
+  console.log(isEmergency)
   // Department description mapping (can be moved to a separate file later)
   const departmentInfo = {
     '정형외과': {
@@ -108,6 +111,25 @@ export default function AnalysisResult({ department, description, estimatedDisea
             : '💡 이 분석은 AI 기반 추천이며, 정확한 진단을 위해 의료기관 방문이 필요합니다.'}
         </p>
       </div>
+      <Card className="flex-col items-stretch bg-gray-50/50 p-6 rounded-b-2xl mt-6">
+          <div className="w-full text-center">
+            <p className="text-lg font-semibold text-gray-800 mb-4">
+              {isEmergency ? t('find_emergency_room_prompt') : t('find_hospitals_prompt')}
+            </p>
+            <div className="flex justify-center gap-4">
+              <Link href="/">
+              <Button variant="outline" className="w-32 bg-white" onClick={onBack}>
+                <X className="w-4 h-4 mr-2" />
+                {t('no')}
+              </Button></Link>
+              <Button className={`w-32 ${isEmergency ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'}`} onClick={goHospitalRecommend}>
+                <Check className="w-4 h-4 mr-2" />
+                {isEmergency ? t('view_emergency_rooms') : t('yes')}
+              </Button>
+            </div>
+          </div>
+          {/* <Feedback context="specialty_recommendation" /> */}
+        </Card>
     </Card>
   );
 }
