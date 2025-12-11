@@ -51,7 +51,7 @@ export default async function handler(req, res) {
   };
 
   try {
-    const sp = (specialty && String(specialty).trim()) || '전문 병원';
+    const sp = (specialty && String(specialty).trim()) || '병원';
     const uniCandidates = await search('대학병원');
     const uniNearby = uniCandidates
       .sort((a, b) => a.distance - b.distance)
@@ -64,9 +64,14 @@ export default async function handler(req, res) {
       .filter((h) => !uniNearby.some((n) => n.id === h.id))
       .slice(0, 3);
 
-    const localCandidates = await search('병원');
+    const localCandidates = await search(sp);
     const localNearby = localCandidates
-      .filter((h) => /의원|클리닉|내과|외과|소아과|피부과|정형외과|치과/.test(h.name))
+      .filter((h) => {
+        // Prefer clinics and local hospitals, matching requested specialty when provided
+        const base = /의원|클리닉|병원/.test(h.name);
+        const spec = sp && sp !== '병원' ? new RegExp(sp, 'i') : null;
+        return base && (spec ? spec.test(h.name) || (h.category && spec.test(h.category)) : true);
+      })
       .filter((h) => !uniNearby.some((u) => u.id === h.id))
       .sort((a, b) => a.distance - b.distance)
       .slice(0, 3);
