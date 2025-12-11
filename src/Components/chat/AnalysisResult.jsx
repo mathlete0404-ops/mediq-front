@@ -9,7 +9,7 @@ import Link from 'next/link';
 export default function AnalysisResult({ department, description, estimatedDisease, icd10code, isEmergency, goHospitalRecommend, onBack}) {
   const { language } = useAppContext();
   const { t } = useAppContext();
-  console.log(isEmergency)
+  
   // Department description mapping (can be moved to a separate file later)
   const departmentInfo = {
     '정형외과': {

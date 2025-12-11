@@ -6,7 +6,7 @@ import { Map } from 'lucide-react';
 export default function StickyBottomBar({ count, onShowMap }) {
   return (
     <AnimatePresence>
-      {count > 0 && (
+      {(
         <motion.div
           initial={{ y: "100%" }}
           animate={{ y: 0 }}
@@ -17,10 +17,11 @@ export default function StickyBottomBar({ count, onShowMap }) {
           <div className="max-w-xl mx-auto">
             <Button
               onClick={onShowMap}
-              className="w-full h-16 text-lg bg-blue-600 hover:bg-blue-700 shadow-2xl rounded-2xl"
+              className="w-full h-16 text-lg bg-blue-600 hover:bg-blue-700 shadow-2xl rounded-2xl disabled:opacity-60 disabled:cursor-not-allowed"
+              disabled={count === 0}
             >
               <Map className="w-5 h-5 mr-3" />
-              선택한 {count}곳 지도에서 보기
+              {count > 0 ? `선택한 ${count}곳 지도에서 보기` : '병원을 선택해주세요'}
             </Button>
           </div>
         </motion.div>

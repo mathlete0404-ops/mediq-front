@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/Components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
@@ -42,8 +42,12 @@ export default function HospitalList({
 }) {
   const { t } = useAppContext();
   const [selectedHospitals, setSelectedHospitals] = useState([]);
+  const [autoHospitals, setAutoHospitals] = useState(null);
+  const [loadingAuto, setLoadingAuto] = useState(false);
+  const [autoError, setAutoError] = useState(null);
 
-  const totalCount = (hospitals?.university?.nearby?.length || 0) + (hospitals?.university?.renowned?.length || 0) + (hospitals?.local?.nearby?.length || 0);
+  const effectiveHospitals = useMemo(() => hospitals || autoHospitals, [hospitals, autoHospitals]);
+  const totalCount = (effectiveHospitals?.university?.nearby?.length || 0) + (effectiveHospitals?.university?.renowned?.length || 0) + (effectiveHospitals?.local?.nearby?.length || 0);
 
   const toggleSelect = (hospital) => {
     setSelectedHospitals(prev => 
@@ -67,6 +71,39 @@ export default function HospitalList({
     }
     return null;
   };
+
+  // Auto-fetch top 3 hospitals by current location if no hospitals prop provided
+  useEffect(() => {
+    if (hospitals) return; // External data provided
+    if (!specialty) return; // Need specialty for renowned query
+    setLoadingAuto(true);
+    setAutoError(null);
+
+    const getPosition = () => new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error('Geolocation not supported'));
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        err => reject(err),
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    });
+
+    getPosition()
+      .then(({ lat, lng }) => {
+        const params = new URLSearchParams({ lat: String(lat), lng: String(lng), specialty: String(specialty) });
+        return fetch(`/api/kakao/search?${params.toString()}`);
+      })
+      .then(async (res) => {
+        if (!res.ok) throw new Error(`API error ${res.status}`);
+        const data = await res.json();
+        setAutoHospitals(data);
+      })
+      .catch((err) => setAutoError(err?.message || 'Failed to fetch hospitals'))
+      .finally(() => setLoadingAuto(false));
+  }, [hospitals, specialty]);
 
   if (isEmergency) {
     return (
@@ -118,8 +155,8 @@ export default function HospitalList({
   }
 
   // Pre-process hospital lists for University Hospitals
-  const universityNearbyHospitals = hospitals.university?.nearby || [];
-  const renownedUniversityHospitals = hospitals.university?.renowned || [];
+  const universityNearbyHospitals = effectiveHospitals?.university?.nearby || [];
+  const renownedUniversityHospitals = effectiveHospitals?.university?.renowned || [];
 
   // Filter out hospitals from the renowned list that are already present in the nearby list
   const nearbyHospitalIds = new Set(universityNearbyHospitals.map(h => h.id));
@@ -141,6 +178,11 @@ export default function HospitalList({
           <p className="text-gray-600">
             {t('hospital_recommendation_subtitle', { specialty })}
           </p>
+          {!hospitals && (
+            <p className="text-xs text-gray-500 mt-1">
+              {loadingAuto ? t('loading') : autoError ? t('failed_to_load') : t('auto_location_based_fetch')}
+            </p>
+          )}
         </div>
         <Button
           variant="outline"
@@ -200,7 +242,7 @@ export default function HospitalList({
         <TabsContent value="local">
           <HospitalSubList
             title={t('nearby_local_clinics')}
-            hospitals={hospitals.local?.nearby}
+            hospitals={effectiveHospitals?.local?.nearby}
             onViewMap={onViewMap}
             onSelect={toggleSelect}
             selectedHospitals={selectedHospitals}
@@ -211,7 +253,14 @@ export default function HospitalList({
       
       <StickyBottomBar 
         count={selectedHospitals.length}
-        onShowMap={() => onViewMap(selectedHospitals)}
+        onShowMap={() => {
+          const valid = selectedHospitals.filter(h => Number.isFinite(h?.lat) && Number.isFinite(h?.lng));
+          if (selectedHospitals.length > 0 && valid.length === 0) {
+            alert('선택한 병원에 위치 정보가 없습니다. 위치 좌표가 있는 병원을 선택해주세요.');
+            return;
+          }
+          onViewMap(valid);
+        }}
       />
     </motion.div>
   );

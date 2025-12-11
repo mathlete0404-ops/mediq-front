@@ -29,10 +29,10 @@ const redIcon = new L.Icon({
 });
 
 export default function MapModal(props) {
-  if (typeof window === 'undefined') return null;
   const { isOpen, onClose, hospitals, userLocation } = props;
   const mapRef = useRef();
   const { theme } = useAppContext(); // Added useAppContext hook
+  const isIOS = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent);
 
   useEffect(() => {
     if (isOpen && mapRef.current && hospitals.length > 0) {
@@ -50,7 +50,6 @@ export default function MapModal(props) {
   
   const handleOpenDirections = (hospital) => {
     const { lat, lng } = hospital;
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
     let url;
     if (isIOS) {
@@ -60,16 +59,21 @@ export default function MapModal(props) {
       // Google Maps URL
       url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
     }
-    window.open(url, '_blank', 'noopener,noreferrer');
+    if (typeof window !== 'undefined') {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
   };
 
-  if (!hospitals || hospitals.length === 0) return null;
+  const validHospitals = Array.isArray(hospitals)
+    ? hospitals.filter(h => Number.isFinite(h?.lat) && Number.isFinite(h?.lng))
+    : [];
+  if (!validHospitals || validHospitals.length === 0) return null;
 
   const isSingle = hospitals.length === 1;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl h-[90vh] p-0 flex flex-col">
+      <DialogContent className="sm:max-w-4xl w-[90vw] md:w-[80vw] h-[80vh] p-0 flex flex-col">
         <DialogHeader className="p-6 pb-4 border-b">
           {/* DialogClose button is often handled implicitly by Dialog or custom positioned */}
           <DialogTitle className="text-xl font-bold pr-8">
@@ -85,7 +89,7 @@ export default function MapModal(props) {
         <div className="flex-1 min-h-0 relative">
           <MapContainer
             ref={mapRef}
-            center={userLocation || [hospitals[0].lat, hospitals[0].lng]}
+            center={userLocation || [validHospitals[0].lat, validHospitals[0].lng]}
             zoom={13}
             style={{ height: '100%', width: '100%' }}
             scrollWheelZoom={true}
@@ -96,7 +100,7 @@ export default function MapModal(props) {
                 ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
                 : "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"}
             />
-            {hospitals.map((hospital) => (
+            {validHospitals.map((hospital) => (
               <Marker key={hospital.name} position={[hospital.lat, hospital.lng]} icon={blueIcon}>
                 <Popup>
                   <div className="text-center font-semibold">{hospital.name}</div>
@@ -112,7 +116,7 @@ export default function MapModal(props) {
         </div>
 
         <div className="p-6 pt-4 border-t overflow-y-auto max-h-[40%]">
-          {hospitals.map((hospital) => (
+          {validHospitals.map((hospital) => (
             <div key={hospital.name} className="flex items-center justify-between py-3 border-b last:border-b-0">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">

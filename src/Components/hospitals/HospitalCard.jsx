@@ -1,76 +1,45 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Badge } from '@/Components/ui/badge';
-import { Info, BarChart } from 'lucide-react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from "@/Components/ui/table";
+import { Button } from '@/Components/ui/button';
+import { MapPin, Phone, ExternalLink } from 'lucide-react';
 
-const formatCurrency = (value, currency) => {
-  return new Intl.NumberFormat('ko-KR', { style: 'currency', currency: currency || 'KRW', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
-};
+export default function HospitalCard({ hospital, onViewMap, onSelect, isSelected }) {
+  if (!hospital) return null;
+  const { name, address, phone, distance, url, category, lat, lng } = hospital;
 
-export default function PriceInfo({ priceBundle }) {
-  if (!priceBundle || !priceBundle.items || priceBundle.items.length === 0) {
-    return null;
-  }
-
-  const { items, currency, condition_key } = priceBundle;
-
-  const totalMin = items.reduce((sum, item) => sum + (item.min || 0), 0);
-  const totalMax = items.reduce((sum, item) => sum + (item.max || 0), 0);
+  const km = typeof distance === 'number' ? (distance >= 1000 ? `${(distance/1000).toFixed(1)} km` : `${distance} m`) : null;
+  const badgeText = category?.split('>')?.pop()?.trim() || '병원';
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.1 }}
-      className="mt-6 bg-gray-50/70 p-6 rounded-2xl border"
+      className={`p-4 rounded-xl border bg-white/70 shadow-sm ${isSelected ? 'ring-2 ring-blue-500' : ''}`}
     >
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
-            <BarChart className="w-5 h-5 text-green-600" />
-        </div>
+      <div className="flex items-start justify-between gap-4">
         <div>
-            <h4 className="font-bold text-gray-800">예상 진료비 정보</h4>
-            <Badge variant="secondary">{condition_key}</Badge>
+          <div className="flex items-center gap-2 mb-1">
+            <h4 className="text-lg font-semibold text-gray-900">{name}</h4>
+            <Badge variant="secondary">{badgeText}</Badge>
+            {km && <span className="text-xs text-gray-500">{km}</span>}
+          </div>
+          <p className="text-sm text-gray-700 flex items-center gap-1"><MapPin className="w-4 h-4" />{address}</p>
+          {phone && <p className="text-sm text-gray-700 flex items-center gap-1"><Phone className="w-4 h-4" />{phone}</p>}
         </div>
-      </div>
-
-      <div className="overflow-x-auto rounded-lg border bg-white">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="text-left font-semibold">항목</TableHead>
-              <TableHead className="text-right font-semibold">예상 비용 범위</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {items.map((item, index) => (
-              <TableRow key={index}>
-                <TableCell>{item.name}</TableCell>
-                <TableCell className="text-right font-mono">
-                  {formatCurrency(item.min, currency)} ~ {formatCurrency(item.max, currency)}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-          {items.length > 1 && (totalMin > 0 || totalMax > 0) && (
-            <TableFooter>
-                <TableRow className="bg-gray-50">
-                    <TableCell className="font-bold">총 예상 비용</TableCell>
-                    <TableCell className="text-right font-bold font-mono">
-                        {formatCurrency(totalMin, currency)} ~ {formatCurrency(totalMax, currency)}
-                    </TableCell>
-                </TableRow>
-            </TableFooter>
+        <div className="flex flex-col gap-2">
+          <Button size="sm" variant="outline" onClick={() => onSelect?.(hospital)}>
+            {isSelected ? '선택 해제' : '선택'}
+          </Button>
+          <Button size="sm" onClick={() => onViewMap?.([{ ...hospital }])}>
+            지도에서 보기
+          </Button>
+          {url && (
+            <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 text-sm inline-flex items-center gap-1">
+              상세보기 <ExternalLink className="w-3.5 h-3.5" />
+            </a>
           )}
-        </Table>
-      </div>
-
-      <div className="mt-4 p-3 bg-yellow-50 text-yellow-800 text-xs rounded-lg flex items-start gap-2">
-        <Info className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-        <p>
-          실제 비용은 건강보험 적용 여부, 병원 정책, 환자 상태에 따라 크게 달라질 수 있으므로 참고용으로만 확인해주세요.
-        </p>
+        </div>
       </div>
     </motion.div>
   );

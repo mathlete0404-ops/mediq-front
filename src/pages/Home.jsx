@@ -7,8 +7,6 @@ import ChatInterface from '@/Components/chat/ChatInterface.jsx';
 import ConversationView from '@/Components/common/chat/ConversationView';
 import SpecialtyRecommendation from '@/Components/specialty/SpecialtyRecommendation.jsx';
 import HospitalList from '@/Components/hospitals/HospitalList.jsx';
-import dynamic from 'next/dynamic';
-const MapModal = dynamic(() => import('@/Components/map/MapModal.jsx'), { ssr: false });
 import { Card, CardContent } from '@/Components/ui/card';
 import { Button } from '@/Components/ui/button';
 import Provider from '@/Entities/Provider';
@@ -362,7 +360,21 @@ Emergency criteria:
               {!isLoading && step === 'hospitals' && (
                 <HospitalList
                   hospitals={hospitals}
-                  onViewMap={(hospitals) => setHospitalsToShowOnMap(hospitals)}
+                  onViewMap={(hospitals) => {
+                    setHospitalsToShowOnMap(hospitals);
+                    if (!userLocation && typeof window !== 'undefined' && navigator.geolocation) {
+                      navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                          const location = [position.coords.latitude, position.coords.longitude];
+                          setUserLocation(location);
+                        },
+                        (error) => {
+                          console.warn('Map view geolocation error:', error?.message || error);
+                        },
+                        { enableHighAccuracy: true, timeout: 6000, maximumAge: 30000 }
+                      );
+                    }
+                  }}
                   onBack={() => setStep('analyzed')}
                   specialty={recommendation?.broad_specialty || recommendation?.specialty}
                   isEmergency={recommendation?.is_emergency}
@@ -373,12 +385,6 @@ Emergency criteria:
           </section>
         )}
       </div>
-      <MapModal
-        isOpen={hospitalsToShowOnMap.length > 0}
-        onClose={() => setHospitalsToShowOnMap([])}
-        hospitals={hospitalsToShowOnMap}
-        userLocation={userLocation}
-      />
     </div>
   );
 }
