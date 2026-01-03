@@ -237,7 +237,7 @@ export default function ChatInterface({ onSubmit, isLoading }) {
           disabled={isLoading || isUploading}
         />
 
-        <Button
+        {/* <Button
           variant="outline"
           size="sm"
           onClick={() => fileInputRef.current?.click()}
@@ -255,7 +255,7 @@ export default function ChatInterface({ onSubmit, isLoading }) {
               {language === 'en' ? 'Add Photo' : '사진 추가'}
             </>
           )}
-        </Button>
+        </Button> */}
       </div>
 
       {/* RIGHT AREA — 더 자세히 입력하기 */}

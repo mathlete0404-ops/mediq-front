@@ -42,14 +42,14 @@ export default function HospitalList({
   locationStatus
 }) {
   
-  const {language} = useAppContext();
-  const { t } = useAppContext();
+  const {language, t} = useAppContext();
   const [selectedHospitals, setSelectedHospitals] = useState([]);
   const [autoHospitals, setAutoHospitals] = useState(null);
   const [loadingAuto, setLoadingAuto] = useState(false);
   const [autoError, setAutoError] = useState(null);
 
   const effectiveHospitals = useMemo(() => hospitals || autoHospitals, [hospitals, autoHospitals]);
+  console.log("1",effectiveHospitals)
   const totalCount = (effectiveHospitals?.university?.nearby?.length || 0) + (effectiveHospitals?.university?.renowned?.length || 0) + (effectiveHospitals?.local?.nearby?.length || 0);
 
   const toggleSelect = (hospital) => {
@@ -143,29 +143,81 @@ export default function HospitalList({
       .finally(() => setLoadingAuto(false));
   }, [hospitals, specialty]);
 
-    // Pre-process hospital lists for University Hospitals
+   // Pre-process hospital lists for University Hospitals
     const universityNearbyHospitals = effectiveHospitals?.university?.nearby || [];
+
+    // 1) renowned 후보 가져오기 (기존 그대로)
     const renownedHospitals =
       effectiveHospitals?.university?.renowned?.length
-    ? effectiveHospitals.university.renowned
-    : getRenownedHospitalsKRBySpecialty(specialty, 15);
-    const renownedHospitalsTop3 = renownedHospitals.slice(0, 3);
+        ? effectiveHospitals.university.renowned
+        : getRenownedHospitalsKRBySpecialty(specialty, 15);
 
+    // 2) nearby에 이미 나온 병원 제거
+    const nearbyHospitalIds = new Set(universityNearbyHospitals.map((h) => h.id));
+    const renownedFiltered = renownedHospitals.filter((h) => !nearbyHospitalIds.has(h.id));
 
-  
-    // Remove hospitals already shown in nearby list, then take top 3
-    const nearbyHospitalIds = new Set(universityNearbyHospitals.map(h => h.id));
+    // 3) ✅ 좌표 없는 병원은 geocode로 채우기 (top3만 먼저 시도해서 비용/속도 절약)
+    const [renownedResolved, setRenownedResolved] = useState([]);
 
-    const universityRenownedHospitalsFiltered = renownedHospitals
-      .filter(h => !nearbyHospitalIds.has(h.id))
-      .slice(0, 3); // ✅ top 3 AFTER filtering
+    // 좌표 채우는 유틸
+    const enrichCoords = async (h) => {
+      // 이미 좌표 있으면 그대로
+      if (Number.isFinite(h?.lat) && Number.isFinite(h?.lng)) return h;
 
-    console.log(universityRenownedHospitalsFiltered)
-    console.log(universityNearbyHospitals)
+      // q를 최대한 정확하게: "병원이름 + address(도시/구) + 대학병원"
+      // const params = new URLSearchParams({
+      //   q: `${h?.name || ""} ${h?.address || ""} 대학병원`.trim(),
+      //   q:h?.name,
+      //   address: h?.address || "",
+      // });
+      // console.log("-----",params.toString())
+      // const res = await fetch(`/api/kakao/geocode?${params.toString()}`);
+      const params = new URLSearchParams({
+        q: h?.name ?? "",
+      });
+      
+      const res = await fetch(`/api/kakao/geocode?${params.toString()}`);
+      const data = await res.json();
 
+      if (!res.ok || !Number.isFinite(data?.lat) || !Number.isFinite(data?.lng)) {
+        // 못 찾으면 원본 반환 (지도 버튼 누르면 안내하도록)
+        return h;
+      }
 
+      return {
+        ...h,
+        // ✅ 좌표 채움
+        lat: data.lat,
+        lng: data.lng,
+        // ✅ url/전화/주소가 비어있으면 geocode 결과로 보강
+        url: h.url || data.url || "",
+        phone: h.phone || "",
+        address: h.address || data.address || "",
+      };
+    };
+
+    // 4) renownedFiltered가 바뀔 때마다 top3만 좌표 채움
+    useEffect(() => {
+      let cancelled = false;
+
+      const run = async () => {
+        const top3 = renownedFiltered.slice(0, 3);
+        const enriched = await Promise.all(top3.map(enrichCoords));
+        if (!cancelled) setRenownedResolved(enriched);
+      };
+
+      run();
+      return () => {
+        cancelled = true;
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [specialty, effectiveHospitals]); // specialty 바뀌면 갱신
+
+    // ✅ 최종: 화면에 보여줄 renowned top3 (좌표 가능한 건 채워진 상태)
+    const universityRenownedHospitalsFiltered = renownedResolved;
     
   if (isEmergency) {
+    console.log(hospitals)
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -199,12 +251,12 @@ export default function HospitalList({
           </AlertTitle>
         </Alert>
         <HospitalSubList
-          title={t('renowned_hospitals')}
-          hospitals={renownedHospitalsTop3}
+          title={t('nearby_emergency_rooms_list')}
+          hospitals={universityNearbyHospitals}
           onViewMap={onViewMap}
           onSelect={toggleSelect}
           selectedHospitals={selectedHospitals}
-          emptyMessage={t('no_renowned_university')}
+          emptyMessage={t('no_emergency_room_info')}
         />
 
         <StickyBottomBar 
