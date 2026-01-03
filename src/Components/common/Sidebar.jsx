@@ -43,12 +43,29 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
 
       <aside className={`fixed top-0 left-0 h-full bg-gray-900 text-white z-50 flex flex-col transition-all duration-300 ease-in-out ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 ${isSidebarCollapsed ? 'w-20' : 'w-72'} ${theme === 'dark' ? 'bg-[#0E1422]' : ''}`}>
         <div className="p-6 border-b border-gray-700">
-          <Link href="/" onClick={handleHomeClick} className={`flex items-center gap-3 group ${isSidebarCollapsed ? 'justify-center' : ''}`} title="MedIQ — Find Smarter, Heal Faster.">
-            <div className="transition-transform group-hover:scale-110">
-              <img src="/logo.png" alt='logo' className="h-14 w-14"/>
-            </div>
-            <span className={`text-xl font-bold whitespace-nowrap transition-opacity ${isSidebarCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>MedIQ</span>
-          </Link>
+        <Link
+          href="/"
+          onClick={handleHomeClick}
+          title="MedIQ — Find Smarter, Heal Faster."
+          className={`flex items-center group ${isSidebarCollapsed ? "justify-center" : "gap-3"}`}
+        >
+          {/* ✅ Prevent shrinking + keep centered */}
+          <div className="flex-shrink-0 w-14 h-14 flex items-center justify-center">
+            <img
+              src="/logo.png"
+              alt="logo"
+              className="w-14 h-14 object-contain transition-transform group-hover:scale-110"
+            />
+          </div>
+
+          {/* ✅ Don't use w-0; remove it when collapsed */}
+          {!isSidebarCollapsed && (
+            <span className="text-xl font-bold whitespace-nowrap">
+              MedIQ
+            </span>
+          )}
+        </Link>
+
         </div>
         
         <nav className="flex-1 px-3 py-6 space-y-2">

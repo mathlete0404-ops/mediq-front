@@ -8,10 +8,11 @@ import HospitalCard from './HospitalCard';
 import StickyBottomBar from './StickyBottomBar';
 import { Alert, AlertDescription, AlertTitle } from '@/Components/ui/alert';
 import { useAppContext } from '@/Components/contexts/AppContext';
+import { getRenownedHospitalsKRBySpecialty } from "@/Components/lib/hospitalRanking/getRenownedHospitals";
 
-const HospitalSubList = ({ title, hospitals, onViewMap, onSelect, selectedHospitals, emptyMessage }) => (
+const HospitalSubList = ({ title, hospitals, onViewMap, onSelect, selectedHospitals, emptyMessage}) => (
   <div>
-    <h3 className="text-xl font-bold text-gray-800 mb-4">{title}</h3>
+    <h3 className="text-xl font-bold text-foreground mb-4">{title}</h3>
     <div className="space-y-4">
       {hospitals && hospitals.length > 0 ? (
         hospitals.map((hospital, index) => (
@@ -40,6 +41,8 @@ export default function HospitalList({
   isEmergency,
   locationStatus
 }) {
+  
+  const {language} = useAppContext();
   const { t } = useAppContext();
   const [selectedHospitals, setSelectedHospitals] = useState([]);
   const [autoHospitals, setAutoHospitals] = useState(null);
@@ -55,6 +58,41 @@ export default function HospitalList({
         ? prev.filter(h => h.id !== hospital.id)
         : [...prev, hospital]
     );
+  };
+
+  const departmentInfo = {
+    '정형외과': {
+      name: language === 'en' ? 'Orthopedics' : '정형외과',
+      description: language === 'en' 
+        ? 'Orthopedics diagnoses and treats conditions related to bones, joints, ligaments, and muscles through non-surgical or surgical methods.'
+        : '관절, 뼈, 근육, 인대 등의 통증과 손상을 진단하고 수술 또는 비수술적 방법으로 치료하는 전문 분야입니다.',
+    },
+    '내과': {
+      name: language === 'en' ? 'Internal Medicine' : '내과',
+      description: language === 'en'
+        ? 'Internal medicine diagnoses and treats diseases of internal organs through medication and lifestyle management.'
+        : '내부 장기의 질환을 약물 치료와 생활 관리를 통해 진단하고 치료하는 전문 분야입니다.',
+    },
+    '신경과': {
+      name: language === 'en' ? 'Neurology' : '신경과',
+      description: language === 'en'
+        ? 'Neurology diagnoses and treats diseases of the brain, spinal cord, and nerves through medication and physical therapy.'
+        : '뇌, 척수, 신경의 질환을 약물 치료와 물리 치료를 통해 진단하고 치료하는 전문 분야입니다.',
+    },
+    '이비인후과': {
+      name: language === 'en' ? 'Otolaryngology' : '이비인후과',
+      description: language === 'en'
+        ? 'Otolaryngology diagnoses and treats diseases of the ears, nose, and throat.'
+        : '귀, 코, 목의 질환을 진단하고 치료하는 전문 분야입니다.',
+    },
+    // Add more departments as needed
+  };
+
+  const deptInfo = departmentInfo[specialty] || {
+    name: specialty,
+    description: language === 'en' 
+      ? 'Please consult with a medical professional for accurate diagnosis and treatment.'
+      : '정확한 진단과 치료를 위해 의료기관 방문을 권장합니다.',
   };
 
   const LocationWarning = () => {
@@ -105,6 +143,28 @@ export default function HospitalList({
       .finally(() => setLoadingAuto(false));
   }, [hospitals, specialty]);
 
+    // Pre-process hospital lists for University Hospitals
+    const universityNearbyHospitals = effectiveHospitals?.university?.nearby || [];
+    const renownedHospitals =
+      effectiveHospitals?.university?.renowned?.length
+    ? effectiveHospitals.university.renowned
+    : getRenownedHospitalsKRBySpecialty(specialty, 15);
+    const renownedHospitalsTop3 = renownedHospitals.slice(0, 3);
+
+
+  
+    // Remove hospitals already shown in nearby list, then take top 3
+    const nearbyHospitalIds = new Set(universityNearbyHospitals.map(h => h.id));
+
+    const universityRenownedHospitalsFiltered = renownedHospitals
+      .filter(h => !nearbyHospitalIds.has(h.id))
+      .slice(0, 3); // ✅ top 3 AFTER filtering
+
+    console.log(universityRenownedHospitalsFiltered)
+    console.log(universityNearbyHospitals)
+
+
+    
   if (isEmergency) {
     return (
       <motion.div
@@ -118,7 +178,7 @@ export default function HospitalList({
               <Siren className="w-8 h-8" />
               {t('nearby_emergency_rooms')}
             </h2>
-            <p className="text-gray-600">
+            <p className="text-foreground">
               {t('nearby_emergency_rooms_subtitle')}
             </p>
           </div>
@@ -134,18 +194,19 @@ export default function HospitalList({
         <LocationWarning />
         <Alert variant="destructive" className="mb-8">
           <AlertTitle className="font-bold">{t('emergency_important_notice_title')}</AlertTitle>
-          <AlertDescription>
+          <AlertTitle>
             {t('emergency_important_notice_content')}
-          </AlertDescription>
+          </AlertTitle>
         </Alert>
         <HospitalSubList
-          title={t('nearby_emergency_rooms_list')}
-          hospitals={hospitals.emergency}
+          title={t('renowned_hospitals')}
+          hospitals={renownedHospitalsTop3}
           onViewMap={onViewMap}
           onSelect={toggleSelect}
           selectedHospitals={selectedHospitals}
-          emptyMessage={t('no_emergency_room_info')}
+          emptyMessage={t('no_renowned_university')}
         />
+
         <StickyBottomBar 
           count={selectedHospitals.length}
           onShowMap={() => onViewMap(selectedHospitals)}
@@ -153,16 +214,6 @@ export default function HospitalList({
       </motion.div>
     );
   }
-
-  // Pre-process hospital lists for University Hospitals
-  const universityNearbyHospitals = effectiveHospitals?.university?.nearby || [];
-  const renownedUniversityHospitals = effectiveHospitals?.university?.renowned || [];
-
-  // Filter out hospitals from the renowned list that are already present in the nearby list
-  const nearbyHospitalIds = new Set(universityNearbyHospitals.map(h => h.id));
-  const universityRenownedHospitalsFiltered = renownedUniversityHospitals.filter(
-    h => !nearbyHospitalIds.has(h.id)
-  );
 
   return (
     <motion.div
@@ -172,15 +223,14 @@ export default function HospitalList({
     >
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
+          <h2 className="text-3xl font-bold text-foreground mb-2">
             {t('hospital_recommendation')}
           </h2>
-          <p className="text-gray-600">
-            {t('hospital_recommendation_subtitle', { specialty })}
+          <p className="text-foreground">
+            {t('hospital_recommendation_subtitle', { specialty:deptInfo.name })}
           </p>
           {!hospitals && (
             <p className="text-xs text-gray-500 mt-1">
-              {loadingAuto ? t('loading') : autoError ? t('failed_to_load') : t('auto_location_based_fetch')}
             </p>
           )}
         </div>
@@ -202,20 +252,24 @@ export default function HospitalList({
       <LocationWarning />
 
       <Tabs defaultValue="university" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 p-1 rounded-xl">
+        <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 dark:bg-[#161e30] p-1 rounded-xl">
           <TabsTrigger 
             value="university"
-            className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-md rounded-lg py-2"
+            className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg py-2"
           >
-            <Building2 className="w-4 h-4" />
+            <Building2 className="w-4 h-4 foreground" />
+            <span className="text-foreground">
             {t('university_hospitals')}
+            </span>
           </TabsTrigger>
           <TabsTrigger 
             value="local"
-            className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-md rounded-lg py-2"
+            className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg py-2"
           >
-            <Home className="w-4 h-4" />
+            <Home className="w-4 h-4 foreground" />
+            <span className="text-foreground">
             {t('local_clinics')}
+            </span>
           </TabsTrigger>
         </TabsList>
 
@@ -251,15 +305,49 @@ export default function HospitalList({
         </TabsContent>
       </Tabs>
       
-      <StickyBottomBar 
+      <StickyBottomBar
         count={selectedHospitals.length}
-        onShowMap={() => {
-          const valid = selectedHospitals.filter(h => Number.isFinite(h?.lat) && Number.isFinite(h?.lng));
-          if (selectedHospitals.length > 0 && valid.length === 0) {
-            alert('선택한 병원에 위치 정보가 없습니다. 위치 좌표가 있는 병원을 선택해주세요.');
+        onShowMap={async () => {
+          if (selectedHospitals.length === 0) return;
+
+          const withCoords = [];
+          const missing = [];
+
+          for (const h of selectedHospitals) {
+            if (Number.isFinite(h?.lat) && Number.isFinite(h?.lng)) {
+              withCoords.push(h);
+              continue;
+            }
+
+            try {
+              const params = new URLSearchParams({
+                q: h?.name || "",
+                address: h?.address || "",
+              });
+
+              const res = await fetch(`/api/kakao/geocode?${params.toString()}`);
+              const data = await res.json();
+
+              if (res.ok && data?.lat && data?.lng) {
+                withCoords.push({ ...h, lat: data.lat, lng: data.lng });
+              } else {
+                missing.push(h);
+              }
+            } catch {
+              missing.push(h);
+            }
+          }
+
+          if (withCoords.length === 0) {
+            alert("선택한 병원들의 좌표를 찾을 수 없습니다.");
             return;
           }
-          onViewMap(valid);
+
+          if (missing.length > 0) {
+            alert(`일부 병원(${missing.length}곳)은 좌표를 찾지 못해 제외하고 지도에 표시합니다.`);
+          }
+
+          onViewMap(withCoords);
         }}
       />
     </motion.div>

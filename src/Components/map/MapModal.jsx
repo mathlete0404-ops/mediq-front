@@ -33,6 +33,7 @@ export default function MapModal(props) {
   const mapRef = useRef();
   const { theme } = useAppContext(); // Added useAppContext hook
   const isIOS = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const { language } = useAppContext();
 
   useEffect(() => {
     if (isOpen && mapRef.current && hospitals.length > 0) {
@@ -121,9 +122,9 @@ export default function MapModal(props) {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <h4 className="font-bold truncate">{hospital.name}</h4>
-                  {hospital.distance && <Badge variant="secondary">{hospital.distance}</Badge>}
+                  {hospital.distance && <Badge variant="secondary">{hospital.distance} m</Badge>}
                 </div>
-                <p className="text-sm text-gray-600 flex items-start gap-2 mt-1">
+                <p className="text-sm text-foreground flex items-start gap-2 mt-1">
                   <MapPin className="w-3 h-3 mt-1 flex-shrink-0" />
                   <span className="truncate">{hospital.address}</span>
                 </p>
@@ -135,7 +136,7 @@ export default function MapModal(props) {
                 className="ml-4 flex-shrink-0"
               >
                 <Navigation className="w-3 h-3 mr-2" />
-                길찾기
+                {language === 'en' ? 'Directions' : '길찾기'}
               </Button>
             </div>
           ))}

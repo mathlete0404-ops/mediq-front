@@ -61,10 +61,10 @@ export default function AnalysisResult({ department, description, estimatedDisea
         {/* Estimated Disease */}
         <div className="grid md:grid-cols-2 gap-4">
             <div className="bg-blue-50/50 p-4 rounded-lg">
-              <p className="text-sm text-gray-600 mb-1">{language === 'en' ? 'Estimated Disease' : '추정 질환'}</p>
+              <p className="text-sm text-gray-900 mb-1">{language === 'en' ? 'Estimated Disease' : '추정 질환'}</p>
               <h4 className="text-lg font-bold text-gray-900">
                 {estimatedDisease || t('no_info')}
-                {icd10code && <Badge variant="outline" className="ml-2 font-mono">{icd10code}</Badge>}
+                {icd10code && <Badge variant="outline" className="ml-2 font-mono text-gray-900">{icd10code}</Badge>}
               </h4>
             </div>
             {/* Recommended Department */}
@@ -97,7 +97,8 @@ export default function AnalysisResult({ department, description, estimatedDisea
                   <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
                       <Stethoscope className="w-5 h-5 text-blue-600"/>
                   </div>
-                  <h4 className="font-semibold text-blue-800">{deptInfo.name}는 어떤 곳인가요?</h4>
+                  <h4 className="font-semibold text-blue-800">
+                    {language === 'en' ? `What kind of place is ${deptInfo.name}?:` : `${deptInfo.name}는 어떤 곳인가요?:`}</h4>
               </div>
               <p className="text-blue-700 leading-relaxed text-sm">{deptInfo.description}</p>
             </div>
@@ -119,12 +120,16 @@ export default function AnalysisResult({ department, description, estimatedDisea
             <div className="flex justify-center gap-4">
               <Link href="/">
               <Button variant="outline" className="w-32 bg-white" onClick={onBack}>
-                <X className="w-4 h-4 mr-2" />
-                {t('no')}
+                <X className="w-4 h-4 mr-2 text-gray-900" />
+                <span className="text-gray-900">
+                  {t('no')}
+                  </span>
               </Button></Link>
               <Button className={`w-32 ${isEmergency ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'}`} onClick={goHospitalRecommend}>
-                <Check className="w-4 h-4 mr-2" />
+                <Check className="w-4 h-4 mr-2 text-white" />
+                <span className="text-white">
                 {isEmergency ? t('view_emergency_rooms') : t('yes')}
+                </span>
               </Button>
             </div>
           </div>
