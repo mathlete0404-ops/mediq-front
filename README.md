@@ -71,6 +71,87 @@
       />
     </td>
   </tr>
+    <tr>
+    <th align="center">AI 분석</th>
+    <th align="center">AI Analysis</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <img
+        src="https://github.com/user-attachments/assets/6bac52a6-1af7-495e-9627-eeb8ef756926"
+        alt="Korean"
+        width="520"
+      />
+    </td>
+    <td align="center">
+      <img
+        src="https://github.com/user-attachments/assets/1b71d8d6-5e88-4441-a8c9-d1c2e558ba30"
+        alt="English"
+        width="520"
+      />
+    </td>
+  </tr>
+    <tr>
+    <th align="center">병원 추천 (대학)</th>
+    <th align="center">Hospital Recommendation (University)</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <img
+        src="https://github.com/user-attachments/assets/aa7a0663-54d7-4fe6-ac3b-999fabe024dc"
+        alt="Korean"
+        width="520"
+      />
+    </td>
+    <td align="center">
+      <img
+        src="https://github.com/user-attachments/assets/8771a00e-7d95-49a4-b0d2-d0b017a15f34"
+        alt="English"
+        width="520"
+      />
+    </td>
+  </tr>
+      <tr>
+    <th align="center">병원 추천 (로컬)</th>
+    <th align="center">Hospital Recommendation (Local)</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <img
+        src="https://github.com/user-attachments/assets/7b02ce53-fefd-4481-86d9-2c8cd7a399ac"
+        alt="Korean"
+        width="520"
+      />
+    </td>
+    <td align="center">
+      <img
+        src="https://github.com/user-attachments/assets/bc96e037-69b0-41f3-9bac-77fda8e9ca3e"
+        alt="English"
+        width="520"
+      />
+    </td>
+  </tr>
+    </tr>
+      <tr>
+    <th align="center">맵</th>
+    <th align="center">Map</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <img
+        src="https://github.com/user-attachments/assets/4d444907-6054-4d74-a5d1-5ea1f1da4bc9"
+        alt="Korean"
+        width="520"
+      />
+    </td>
+    <td align="center">
+      <img
+        src="https://github.com/user-attachments/assets/450f6925-6b42-4d48-adfa-45c77d7e4e15"
+        alt="English"
+        width="520"
+      />
+    </td>
+  </tr>
 </table>
 
 
