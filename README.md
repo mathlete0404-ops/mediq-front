@@ -1,9 +1,5 @@
 # Front
 
-## Project Introduction
-
-
-
 ## Overview
 
 <table>
