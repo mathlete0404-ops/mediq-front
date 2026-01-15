@@ -89,158 +89,104 @@ MedIQ는 사용자 경험을 중요하게 고려하여 한국어와 영어를 �
 아이디어 기획 단계부터 UI/UX 설계, 프론트엔드·백엔드 개발, AI 연동, 지도 API 통합까지 전 과정을 단독으로 수행하였습니다.  
 단기간 내에 실제 사용 가능한 의료 네비게이션 서비스를 구현하는 것을 목표로 하여, 기능 구현뿐만 아니라 사용자 경험과 실사용 시나리오를 중심으로 지속적인 개선과 리팩토링을 진행하였습니다.
 
-## Start Guide
+---
 
-### Step 0) 준비물
+## Getting Started
 
-* Node.js (권장: **v18+ / v20+**)
-* npm 또는 pnpm (아래는 npm 기준)
-* Git
-* (선택) Python 3.10+ (Groq 백엔드 쓸 경우)
+MedIQ는 **증상 입력 → AI 분석 → 전문과 추천 → 병원 리스트 제공 → 지도에서 병원 위치 확인**의 흐름으로 동작하는 의료 내비게이션 웹 애플리케이션입니다.
+사용자는 간단한 증상만 입력하면 AI가 이를 분석하여 적절한 진료과를 추천하고, 현재 위치를 기준으로 가까운 병원과 해당 분야에서 유명한 병원을 함께 확인할 수 있습니다.
 
 ---
 
-## 1) Frontend 실행 (mediq-front)
+## Environment Variables
 
-### Step 1) 프로젝트 클론 & 이동
+MedIQ는 보안을 위해 모든 API Key를 환경 변수로 관리합니다.
 
-```bash
-git clone <YOUR_REPO_URL>
-cd mediq-front
-```
+### Frontend (mediq-front)
 
-### Step 2) 패키지 설치
-
-```bash
-npm install
-```
-
-### Step 3) 환경변수 설정 (.env.local)
-
-`mediq-front` 폴더에 `.env.local` 만들고 아래처럼 넣어.
+`mediq-front/.env.local` 파일을 생성한 뒤 아래와 같이 설정하세요.
 
 ```env
-# Kakao REST API Key (서버에서 사용)
 KAKAO_REST_API_KEY=YOUR_KAKAO_REST_API_KEY
-
-# (선택) Groq 백엔드 URL을 프론트에서 호출할 때
 NEXT_PUBLIC_BACKEND_URL=http://127.0.0.1:8000
 ```
 
-> ✅ **Kakao 키는 반드시 REST API 키**를 사용하고, **.env.local**에 넣어야 해.
-> 프론트 코드에 직접 하드코딩하면 노출됨.
+* `KAKAO_REST_API_KEY`
+  Kakao Local REST API 호출에 사용됩니다. 병원 검색 및 좌표 변환에 필수입니다.
+* `NEXT_PUBLIC_BACKEND_URL`
+  (선택 사항) Groq 기반 FastAPI 백엔드를 사용하는 경우 프론트엔드에서 호출할 주소입니다.
 
-### Step 4) 개발 서버 실행
+> ⚠️ API Key는 절대 코드에 직접 작성하지 말고 `.env.local` 파일에만 저장하세요.
+
+---
+
+## Kakao API Setup
+
+MedIQ에서 병원 검색과 지도 기능을 사용하기 위해 **Kakao Developers 설정**이 필요합니다.
+
+### Step 1) Create Kakao Application
+
+Kakao Developers 사이트에서 로그인 후 **내 애플리케이션 → 애플리케이션 추가하기**를 통해 새 앱을 생성합니다.
+
+### Step 2) Get REST API Key
+
+생성된 앱의 **앱 키** 메뉴에서 **REST API 키**를 복사합니다.
+
+### Step 3) Register Web Platform
+
+앱 설정 → **플랫폼** 메뉴에서 **Web**을 추가하고 아래 주소를 등록합니다.
+
+* 개발 환경: `http://localhost:3000`
+* 배포 환경: 실제 서비스 도메인
+
+이 설정이 없으면 Kakao API 호출 시 오류가 발생할 수 있습니다.
+
+### Step 4) APIs Used in MedIQ
+
+MedIQ에서는 아래 Kakao API 기능을 사용합니다.
+
+* 키워드 기반 병원 검색
+* 병원 주소/이름 기반 좌표 변환(Geocoding)
+* 사용자 위치 기반 거리 계산
+
+---
+
+## Run Frontend
+
+프론트엔드는 Next.js 기반으로 동작합니다.
 
 ```bash
+cd mediq-front
+npm install
 npm run dev
 ```
 
-* 브라우저에서: `http://localhost:3000`
+실행 후 브라우저에서 아래 주소로 접속합니다.
 
----
-
-## 2) Kakao API 설정 (필수)
-
-### ✅ 필요한 Kakao API (MedIQ에서 쓰는 것)
-
-MedIQ가 “주변 병원 검색 + 좌표(geocode)”를 하려면 보통 아래가 필요해:
-
-1. **Kakao Local API (REST)**
-
-* 키워드로 병원 검색: `local/search/keyword`
-* 주소/키워드 좌표화(지오코딩): `local/search/address` 또는 키워드 검색 기반 좌표 추출
-
-2. **(선택) Kakao Maps JavaScript SDK**
-
-* 지도 UI를 프론트에서 렌더링할 때 사용
-* (너는 지금 프론트 지도 구현도 하니까 보통 함께 씀)
-
----
-
-## 3) Kakao API Key 발급 & 적용 (필수)
-
-### Step 1) Kakao Developers에서 앱 생성
-
-* Kakao Developers → **내 애플리케이션** → **애플리케이션 추가하기**
-
-### Step 2) REST API Key 확인
-
-* 앱 선택 → **앱 키** 메뉴 → **REST API 키** 복사
-
-### Step 3) `.env.local`에 추가
-
-```env
-KAKAO_REST_API_KEY=복사한키
+```
+http://localhost:3000
 ```
 
-### Step 4) (지도 SDK 쓸 경우) JavaScript Key도 확인
-
-* 똑같이 **앱 키** 메뉴에서 JavaScript 키 확인 가능
-
-### Step 5) 플랫폼 등록 (중요)
-
-* 앱 설정 → **플랫폼** → Web 등록
-* `http://localhost:3000` 추가
-* 배포 도메인도 추가해야 배포시 정상작동
-
 ---
 
-## 4) MedIQ Kakao API Routes (필수)
+## Run Backend (Optional)
 
-현재 너가 쓰는 구조상 프론트에서 호출하는 API는 대략 이런 형태야:
-
-* `/api/kakao/search?lat=...&lng=...&specialty=...`
-* `/api/kakao/geocode?q=...`
-
-### ✅ 체크포인트
-
-* `mediq-front` 안에 **Next.js API route**로 존재해야 함
-  예:
-
-  * `src/pages/api/kakao/search.js`
-  * `src/pages/api/kakao/geocode.js`
-    (또는 app router이면 `src/app/api/kakao/.../route.js`)
-
-* `.env.local`에 `KAKAO_REST_API_KEY`가 있어야 함
-
----
-
-## 5) Backend (Groq) 실행 (선택: mediq-back)
-
-Groq 백엔드를 실제로 쓰는 경우에만 필요.
-
-### Step 1) 이동
+AI 분석을 별도의 서버(Groq + FastAPI)로 분리해 사용하는 경우에만 필요합니다.
 
 ```bash
-cd ../mediq-back
-```
-
-### Step 2) 가상환경 생성 (권장)
-
-```bash
+cd mediq-back
 python -m venv .venv
 source .venv/bin/activate
-```
-
-### Step 3) 설치
-
-```bash
 pip install -r requirements.txt
 ```
 
-### Step 4) 환경변수 (.env)
+환경 변수 설정 (`mediq-back/.env`):
 
 ```env
 GROQ_API_KEY=YOUR_GROQ_API_KEY
 ```
 
-### Step 5) 실행
-
-> 파일명이 `groq.py` 라면 충돌 가능성이 있어. (groq 라이브러리랑 이름 겹침)
-> **권장 파일명: `main.py`**
-
-예: `main.py`에 `app = FastAPI()`가 있을 때:
+서버 실행:
 
 ```bash
 uvicorn main:app --reload
@@ -248,79 +194,68 @@ uvicorn main:app --reload
 
 ---
 
-# Required APIs / Services
+## Project Structure
 
-## ✅ Must-have
+프로젝트는 아래와 같은 구조로 구성되어 있습니다.
 
-* **Kakao Local REST API**
-
-  * Nearby hospital search (Keyword Search)
-  * Geocode (Address Search or Keyword-based)
-* **(If you show an actual map UI)** Kakao Maps JavaScript SDK
-
-## ✅ Optional (If AI runs on backend)
-
-* **Groq API** (FastAPI + Groq)
-
-## ✅ base44 관련
-
-* base44의 `InvokeLLM`을 쓰는 구조면:
-
-  * API key를 프론트에 안 넣어도 됨 (플랫폼에서 관리)
-  * 모델 선택도 base44 설정에서 변경됨
-
----
-
-# Recommended VS Code Extensions
-
-### Frontend (React / Next.js)
-
-* **ESLint**
-* **Prettier**
-* **Tailwind CSS IntelliSense**
-* **JavaScript and TypeScript Nightly** (선택)
-* **Error Lens** (선택)
-
-### Backend (Python / FastAPI)
-
-* **Python**
-* **Pylance**
-* **dotenv** (선택)
-
-### Git / README
-
-* **GitLens**
-* **Markdown Preview Enhanced** (선택)
-
----
-
-# Troubleshooting (자주 터지는 것만)
-
-### 1) `npm run dev` 했는데 package.json 못 찾는 오류
-
-✅ 현재 폴더가 프로젝트 폴더인지 확인
-
-```bash
-pwd
-ls
+```
+mediq-front/
+ ├─ src/
+ │  ├─ Components/
+ │  │  ├─ hospital/
+ │  │  │  ├─ HospitalList.jsx
+ │  │  │  ├─ HospitalCard.jsx
+ │  │  │  └─ StickyBottomBar.jsx
+ │  │  ├─ lib/
+ │  │  │  └─ hospitalRanking/
+ │  │  │     └─ getRenownedHospitals.jsx
+ │  │  ├─ contexts/
+ │  │  │  └─ AppContext.jsx
+ │  │  └─ common/
+ │  │     ├─ Sidebar.jsx
+ │  │     └─ Logo.jsx
+ │  ├─ pages/
+ │  │  └─ api/
+ │  │     └─ kakao/
+ │  │        ├─ search.js
+ │  │        └─ geocode.js
+ │  └─ public/
+ │     └─ logo.png
 ```
 
-`package.json` 보이는 위치에서 실행해야 함.
+---
+
+## Tech Stack
+
+* **Frontend**: Next.js, React, Tailwind CSS, Framer Motion
+* **State Management**: React Context API
+* **Maps & Location**: Kakao Local REST API
+* **AI**: base44 InvokeLLM (기본) / Groq (선택)
+* **Backend (Optional)**: FastAPI, Uvicorn
 
 ---
 
-### 2) Kakao API 401/403
+## Recommended Extensions
 
-* REST API 키가 맞는지
-* `.env.local` 위치가 `mediq-front` 안이 맞는지
-* 플랫폼(Web) 등록에 `localhost:3000` 등록했는지
+### Frontend
+
+* ESLint
+* Prettier
+* Tailwind CSS IntelliSense
+
+### Backend (Optional)
+
+* Python
+* Pylance
+
+### Documentation
+
+* GitLens
+* Markdown Preview Enhanced
 
 ---
 
-### 3) `/api/kakao/geocode` 404
+## Notes
 
-* 해당 API route 파일이 실제로 존재하는지
-* 경로가 app router인지 pages router인지 확인 필요
-
-
-
+* MedIQ에서 제공하는 결과는 **의학적 진단이 아닌 참고용 정보**입니다.
+* 정확한 진단과 치료를 위해서는 반드시 의료기관을 방문하시기 바랍니다.
